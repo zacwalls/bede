@@ -2,13 +2,14 @@ import { headers } from 'next/headers'
 import type { Metadata } from 'next'
 import { Session } from 'next-auth'
 
+import Navbar from './components/Navbar';
 import AuthContext from './AuthContext';
 import './globals.css';
 
-async function getSession(cookie: string): Promise<Session> {
+export async function getServerSession(): Promise<Session> {
   const response = await fetch(`http://localhost:3000/api/auth/session`, {
     headers: {
-      cookie,
+      cookie: headers().get('cookie') ?? '',
     },
   });
 
@@ -23,13 +24,16 @@ export const metadata: Metadata = {
 }
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const session = await getSession(headers().get('cookie') ?? '');
+  const session = await getServerSession();
 
   return (
     <html lang="en">
       <body suppressHydrationWarning={true}>
         <AuthContext session={session}>
+        <main className="flex min-h-screen flex-col items-center">
+          <Navbar session={session} />
           {children}
+        </main>
         </AuthContext>
       </body>
     </html>

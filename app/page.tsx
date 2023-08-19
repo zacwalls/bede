@@ -1,9 +1,13 @@
-import Navbar from './components/Navbar';
+"use client";
+
+import Link from 'next/link';
+import { useSession } from "next-auth/react";
+
 
 export default function Home() {
-  return (
-    <main className="flex min-h-screen flex-col items-center justify-between">
-      <Navbar />
-    </main>
-  )
+  const { data: session } = useSession()
+
+  console.log()
+
+  return (<h1>Welcome!</h1>)
 }
