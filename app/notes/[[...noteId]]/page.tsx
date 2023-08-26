@@ -2,9 +2,9 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { Session } from 'next-auth';
 
-import prisma from "../../lib/db";
-import { getServerSession } from "../../layout";
-import Editor from '../../components/Editor'
+import prisma from "@/app/lib/db";
+import Editor from '@/app/components/Editor'
+import serverSession from '@/app/lib/session';
 
 async function createNewNote(userId: string) {
     const note = await prisma.note.create({
@@ -31,7 +31,8 @@ async function NoteEditor({ noteId, session }: { noteId: string, session: Sessio
     } else {
         note = await prisma.note.findUnique({
             where: {
-                id: parseInt(noteId)
+                id: parseInt(noteId),
+                userId: session?.user?.id
             }
         });
 
@@ -46,7 +47,7 @@ async function NoteEditor({ noteId, session }: { noteId: string, session: Sessio
 }
 
 export default async function Note({ params }: { params: { noteId: string[] } }) {
-    const session = await getServerSession();
+    const session = await serverSession();
 
     if (!session) {
         return (
