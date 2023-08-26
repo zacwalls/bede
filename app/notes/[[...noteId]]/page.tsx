@@ -1,12 +1,12 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { Session } from 'next-auth';
-import { PrismaClient } from '@prisma/client';
 
+import prisma from "../../lib/db";
 import { getServerSession } from "../../layout";
 import Editor from '../../components/Editor'
 
-async function createNewNote(prisma: PrismaClient, userId: string) {
+async function createNewNote(userId: string) {
     const note = await prisma.note.create({
         data: {
             title: "Untitled",
@@ -22,11 +22,11 @@ async function createNewNote(prisma: PrismaClient, userId: string) {
     return note;
 }
 
-async function NoteEditor({ noteId, prisma, session }: { noteId: string, prisma: PrismaClient, session: Session }) {
+async function NoteEditor({ noteId, session }: { noteId: string, session: Session }) {
     let note;
 
     if (noteId === "new") {
-        note = await createNewNote(prisma, session?.user?.id);
+        note = await createNewNote(session?.user?.id);
         redirect(`/notes/${note.id}`);
     } else {
         note = await prisma.note.findUnique({
@@ -35,20 +35,18 @@ async function NoteEditor({ noteId, prisma, session }: { noteId: string, prisma:
             }
         });
 
-
         if (!note) {
             throw new Error("Note not found");
         }
     }
 
     return (
-        <Editor noteContent={note.content}></Editor>
+        <Editor note={note}></Editor>
     )
 }
 
 export default async function Note({ params }: { params: { noteId: string[] } }) {
     const session = await getServerSession();
-    const prisma = new PrismaClient();
 
     if (!session) {
         return (
@@ -59,7 +57,7 @@ export default async function Note({ params }: { params: { noteId: string[] } })
     }
 
     if (params.noteId && params.noteId[0]) {
-        return <NoteEditor noteId={params.noteId[0]} prisma={prisma} session={session} />;
+        return <NoteEditor noteId={params.noteId[0]} session={session} />;
     }
 
     const notes = await prisma.note.findMany({

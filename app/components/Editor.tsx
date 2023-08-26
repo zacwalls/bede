@@ -1,9 +1,26 @@
 "use client";
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
-export default function Editor({ noteContent }: { noteContent: string }) {
-    const [content, setContent] = useState(noteContent);
+type Note = {
+    id: number
+    title: string
+    content: string
+}
 
-    return (<textarea title='Note' onChange={(e) => setContent(e.target.value)} value={content}></textarea>)
+export default function Editor({ note }: { note: Note }) {
+    const [content, setContent] = useState(note.content);
+
+    useEffect(() => {
+        const timeout = setTimeout(async () => {
+            await fetch(`/api/notes/${note.id}`, {
+                method: "PATCH",
+                body: JSON.stringify({ newContent: content })
+            });
+        }, 500);
+
+        return () => clearTimeout(timeout);
+    }, [content])
+
+    return (<textarea title={note.title} onChange={(e) => setContent(e.target.value)} value={content}></textarea>)
 }
