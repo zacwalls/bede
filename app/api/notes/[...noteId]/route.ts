@@ -6,14 +6,14 @@ import { getServerSession } from '@/app/layout';
 export async function PATCH(request: Request, context: { params: { noteId: string } }) {
     const session = await getServerSession();
     
-    const { newContent } = await request.json();
+    const { newContent, newTitle } = await request.json();
     const note = await prisma.note.findUnique({
         where: {
             id: Number(context.params.noteId),
         },
     });
 
-    if (!newContent === undefined) {
+    if (newContent === undefined && newTitle === undefined) {
         return new NextResponse("No new content supplied", { status: 400 });
     }
 
@@ -31,6 +31,7 @@ export async function PATCH(request: Request, context: { params: { noteId: strin
         },
         data: {
             content: newContent,
+            title: newTitle,
         },
     });
 
