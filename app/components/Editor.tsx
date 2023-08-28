@@ -1,12 +1,8 @@
 "use client";
 
-import { useState, useEffect, useRef, forwardRef, Ref } from 'react'
-import { MDXEditorMethods, MDXEditorProps } from '@mdxeditor/editor';
-import dynamic from 'next/dynamic'
-import '@mdxeditor/editor/style.css'
-import { headingsPlugin } from '@mdxeditor/editor/plugins/headings'
-import { listsPlugin } from '@mdxeditor/editor/plugins/lists'
-import { quotePlugin } from '@mdxeditor/editor/plugins/quote'
+import { useState, useEffect } from 'react'
+import { createEditor, BaseEditor, Descendant } from 'slate';
+import { Slate, Editable, withReact, ReactEditor, } from 'slate-react';
 
 type Note = {
     id: number
@@ -14,55 +10,66 @@ type Note = {
     content: string
 }
 
-const EditorPlugins = [
-    headingsPlugin(),
-    listsPlugin(),
-    quotePlugin()
-]
+type CustomElement = { type: 'paragraph'; children: CustomText[] }
+type CustomText = { text: string }
 
-const MDXEditor = dynamic(
-    () => import('@mdxeditor/editor').then((mod) => mod.MDXEditor),
-    { ssr: false }
-)
-
-const EditorWithRef = forwardRef((props: MDXEditorProps, ref: Ref<MDXEditorMethods>) => <MDXEditor ref={ref} {...props} />)
+declare module 'slate' {
+    interface CustomTypes {
+        Editor: BaseEditor & ReactEditor
+        Element: CustomElement
+        Text: CustomText
+    }
+}
 
 export default function Editor({ note }: { note: Note }) {
-    const [content, setContent] = useState(note.content);
+    const [editor] = useState(() => withReact(createEditor()))
+    const [content, setContent] = useState((note.content || JSON.stringify([
+        {
+            type: 'paragraph',
+            children: [{ text: 'A line of text in a paragraph.' }],
+        },
+    ])));
     const [title, setTitle] = useState(note.title);
-    const [modified, setNodified] = useState(false);
     const [saving, setSaving] = useState(false);
-    const editorRef = useRef<MDXEditorMethods>(null);
-
-    function handleNoteChange(value: string, setter: (value: string) => void) {
-        setNodified(true);
-        setter(value);
-    }
 
     useEffect(() => {
-        if (!modified) return;
-
         setSaving(true);
 
         const timeout = setTimeout(async () => {
             await fetch(`/api/notes/${note.id}`, {
                 method: "PATCH",
-                body: JSON.stringify({ newContent: content, newTitle: title })
-            }).then(() => editorRef.current?.setMarkdown(content));
-        }, 500);
-
-        setSaving(false);
+                body: JSON.stringify({ newTitle: title, newContent: content }),
+            }).then(() => setSaving(false));
+        }, 1000);
 
         return () => clearTimeout(timeout);
     }, [content, title])
 
     return (
-        <>
-            <h1>
-                <input type="text" placeholder='Title...' onChange={(e) => handleNoteChange(e.target.value, setTitle)} value={title} />
+        <div className="w-full p-6">
+            <h1 className="text-2xl py-2">
+                <input
+                    type="text"
+                    placeholder='Title...'
+                    onChange={(e) => setTitle(e.target.value)} 
+                    value={title}
+                />
                 {saving && <span> (saving...)</span>}
             </h1>
-            <EditorWithRef ref={editorRef} plugins={EditorPlugins} markdown={content} onChange={(value) => handleNoteChange(value, setContent)} />
-        </>
+            <Slate
+                editor={editor}
+                onChange={value => {
+                    const isAstChange = editor.operations.some(
+                        op => 'set_selection' !== op.type
+                    )
+                    if (isAstChange) {
+                        setContent(JSON.stringify(value))
+                    }
+                }}
+                initialValue={JSON.parse(content)}
+            >
+                <Editable />
+            </Slate>
+        </div>
     )
 }

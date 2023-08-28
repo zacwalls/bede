@@ -5,6 +5,7 @@ import Navbar from '@/app/components/Navbar';
 import serverSession from '@/app/lib/session';
 import AuthContext from '@/app/context/AuthContext';
 import '@/app/globals.css';
+import { StrictMode } from 'react';
 
 export const metadata: Metadata = {
   title: 'Bede',
@@ -16,14 +17,16 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
   return (
     <html lang="en">
-      <body suppressHydrationWarning={true}>
-        <AuthContext session={session as Session}>
-        <main className="flex min-h-screen flex-col items-center">
-          <Navbar session={session} />
-          {children}
-        </main>
-        </AuthContext>
-      </body>
+      <StrictMode>
+        <body suppressHydrationWarning={true}>
+          <AuthContext session={session as Session}>
+            <main className="flex min-h-screen flex-col items-center">
+              <Navbar session={session} />
+              {children}
+            </main>
+          </AuthContext>
+        </body>
+      </StrictMode>
     </html>
   )
 }
