@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server';
 
 import prisma from '@/app/lib/db';
-import { getServerSession } from '@/app/layout';
+import serverSession from '@/app/lib/session';
 
 export async function PATCH(request: Request, context: { params: { noteId: string } }) {
-    const session = await getServerSession();
+    const session = await serverSession();
     
     const { newContent, newTitle } = await request.json();
     const note = await prisma.note.findUnique({
