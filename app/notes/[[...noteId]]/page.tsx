@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation';
 import { Session } from 'next-auth';
 
 import prisma from "@/app/lib/db";
-import Editor from '@/app/components/Editor'
+import Editor from '@/app/components/NoteEditor'
 import serverSession from '@/app/lib/session';
 
 async function createNewNote(userId: string) {
