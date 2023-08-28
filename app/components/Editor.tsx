@@ -26,7 +26,7 @@ export default function Editor({ note }: { note: Note }) {
     const [content, setContent] = useState((note.content || JSON.stringify([
         {
             type: 'paragraph',
-            children: [{ text: 'A line of text in a paragraph.' }],
+            children: [{ text: '' }],
         },
     ])));
     const [title, setTitle] = useState(note.title);
@@ -46,16 +46,14 @@ export default function Editor({ note }: { note: Note }) {
     }, [content, title])
 
     return (
-        <div className="w-full p-6">
-            <h1 className="text-2xl py-2">
-                <input
-                    type="text"
-                    placeholder='Title...'
-                    onChange={(e) => setTitle(e.target.value)} 
-                    value={title}
-                />
-                {saving && <span> (saving...)</span>}
-            </h1>
+        <div className="w-full px-48 py-12">
+            <input
+                className="text-4xl font-bold mr-4 w-fit pb-6"
+                type="text"
+                placeholder='Title...'
+                onChange={(e) => setTitle(e.target.value)}
+                value={title}
+            />
             <Slate
                 editor={editor}
                 onChange={value => {
