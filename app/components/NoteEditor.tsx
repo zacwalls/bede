@@ -12,23 +12,13 @@ import {
     Range,
     Transforms,
 } from 'slate'
-import { Slate, Editable, withReact, ReactEditor, RenderLeafProps, } from 'slate-react';
+import { Slate, Editable, withReact, ReactEditor, RenderLeafProps, RenderElementProps, } from 'slate-react';
 import { withHistory } from 'slate-history'
 
 type Note = {
     id: number
     title: string
     content: string
-}
-
-type CustomElement = { type: 'paragraph'; children: CustomText[] }
-type CustomText = { text: string }
-
-declare module 'slate' {
-    interface CustomTypes {
-        Element: CustomElement
-        Text: CustomText
-    }
 }
 
 const SHORTCUTS = {
@@ -88,7 +78,7 @@ const withShortcuts = editor => {
                 }
 
                 if (type === 'ul-list-item') {
-                    const list: BulletedListElement = {
+                    const list = {
                         type: 'bulleted-list',
                         children: [],
                     }
@@ -107,7 +97,7 @@ const withShortcuts = editor => {
         insertText(text)
     }
 
-    editor.deleteBackward = (...args) => {
+    editor.deleteBackward = (...args: any[]) => {
         const { selection } = editor
 
         if (selection && Range.isCollapsed(selection)) {
@@ -161,7 +151,7 @@ const withShortcuts = editor => {
     return editor
 }
 
-const Element = ({ attributes, children, element }) => {
+const Element = ({ attributes, children, element }: RenderElementProps) => {
     switch (element.type) {
         case 'block-quote':
             return <blockquote {...attributes}>{children}</blockquote>
@@ -198,7 +188,7 @@ export default function NoteEditor({ note }: { note: Note }) {
         },
     ])));
     const [title, setTitle] = useState(note.title);
-    const renderElement = useCallback(props => <Element {...props} />, [])
+    const renderElement = useCallback((props: RenderElementProps) => <Element {...props} />, [])
     const editor = useMemo(
         () => withShortcuts(withReact(withHistory(createEditor()))),
         []
@@ -264,7 +254,7 @@ export default function NoteEditor({ note }: { note: Note }) {
                 editor={editor}
                 onChange={value => {
                     const isAstChange = editor.operations.some(
-                        op => 'set_selection' !== op.type
+                        (op: any) => 'set_selection' !== op.type
                     )
                     if (isAstChange) {
                         setContent(JSON.stringify(value))
