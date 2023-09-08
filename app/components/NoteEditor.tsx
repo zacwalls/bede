@@ -14,6 +14,7 @@ import {
 } from 'slate'
 import { Slate, Editable, withReact, ReactEditor, RenderLeafProps, RenderElementProps, } from 'slate-react';
 import { withHistory } from 'slate-history'
+import Link from 'next/link';
 
 type Note = {
     id: number
@@ -31,6 +32,7 @@ const SHORTCUTS = {
     '####': 'heading-four',
     '#####': 'heading-five',
     '######': 'heading-six',
+    '[': 'backlink',
 }
 
 const withShortcuts = editor => {
@@ -151,31 +153,66 @@ const withShortcuts = editor => {
     return editor
 }
 
-const Element = ({ attributes, children, element }: RenderElementProps) => {
-    switch (element.type) {
+// Used for selecting notes to link to
+function NotesMenu({ notes, setHref }: { notes: Note[], setHref: (title: string) => void }) {
+    return (
+        <div className="absolute z-10 w-1/4 h-1/2 bg-white border border-black">
+            <div className="flex flex-col">
+                {notes.map(note => (
+                    <div className="flex flex-row">
+                        <div className="text-sm font-bold text-gray-400" contentEditable={false} onClick={(e) => setHref(`/notes/${note.id}`)}>{note.title}</div>
+                    </div>
+                ))}
+            </div>
+        </div>
+    )
+}
+
+function Backlink({ attributes, children }: RenderElementProps) {
+    const [href, setHref] = useState("");
+    const [notes, setNotes] = useState([]);
+
+    useEffect(() => {
+        fetch('/api/notes').then(res => res.json()).then(data => {
+            setNotes(data);
+        }).catch(err => console.error(err));
+    }, [])
+
+    return (
+        <div  {...attributes}>
+            {!href && <NotesMenu notes={notes} setHref={setHref} />}
+            <Link href={href} className="flex flex-col text-blue-600">{children}</Link>
+        </div>
+    )
+}
+
+const Element = (props: RenderElementProps) => {
+    switch (props.element.type) {
         case 'block-quote':
-            return <blockquote {...attributes}>{children}</blockquote>
+            return <blockquote {...props.attributes}>{props.children}</blockquote>
+        case 'backlink':
+            return <Backlink {...props}>{props.children}</Backlink> 
         case 'numbered-list':
-            return <ol className="list-decimal pl-4" {...attributes}>{children}</ol>
+            return <ol className="list-decimal pl-4" {...props.attributes}>{props.children}</ol>
         case 'bulleted-list':
-            return <ul className="list-disc pl-4" {...attributes}>{children}</ul>
+            return <ul className="list-disc pl-4" {...props.attributes}>{props.children}</ul>
         case 'heading-one':
-            return <h1 className="text-6xl" {...attributes}>{children}</h1>
+            return <h1 className="text-6xl" {...props.attributes}>{props.children}</h1>
         case 'heading-two':
-            return <h2 className="text-5xl" {...attributes}>{children}</h2>
+            return <h2 className="text-5xl" {...props.attributes}>{props.children}</h2>
         case 'heading-three':
-            return <h3 className="text-3xl" {...attributes}>{children}</h3>
+            return <h3 className="text-3xl" {...props.attributes}>{props.children}</h3>
         case 'heading-four':
-            return <h4 className="text-2xl" {...attributes}>{children}</h4>
+            return <h4 className="text-2xl" {...props.attributes}>{props.children}</h4>
         case 'heading-five':
-            return <h5 className="text-xl" {...attributes}>{children}</h5>
+            return <h5 className="text-xl" {...props.attributes}>{props.children}</h5>
         case 'heading-six':
-            return <h6 className="text-lg" {...attributes}>{children}</h6>
+            return <h6 className="text-lg" {...props.attributes}>{props.children}</h6>
         case 'ul-list-item':
         case 'ol-list-item':
-            return <li {...attributes}>{children}</li>
+            return <li {...props.attributes}>{props.children}</li>
         default:
-            return <p {...attributes}>{children}</p>
+            return <p {...props.attributes}>{props.children}</p>
     }
 }
 

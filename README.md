@@ -1,14 +1,14 @@
 # MVP Features
-- [] Authentication
-- [] Markdown support/rich text
-- [] Internal linking
+- [x] Authentication
+- [x] Markdown support/rich text
+- [] Internal linking - current
 - [] Note organization (folders)
-- [] Syncing and backup
+- [x] Syncing and backup
 - [] Dark mode
 
 # Nice-to-have
 - [] Collaboration/note sharing
-- [] Backlinks (graph view)
+- [] Backlinks graph view
 - [] Attachments
 - [] File history/diffing
 - [] Notes outline

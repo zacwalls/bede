@@ -47,7 +47,7 @@ async function NoteEditor({ noteId, session }: { noteId: string, session: Sessio
     )
 }
 
-export default async function Note({ params }: { params: { noteId: string[] } }) {
+export default async function Notes({ params }: { params: { noteId: string[] } }) {
     const session = await serverSession();
 
     if (!session) {
@@ -77,10 +77,10 @@ export default async function Note({ params }: { params: { noteId: string[] } })
                     </div>
                 </div>
                 <div className="flex flex-col w-full">
-                    <div className="grid grid-cols-3 text-center border-b border-black p-6">
-                        <h1 className="text-lg font-bold">Title</h1>
-                        <h1 className="text-lg font-bold">Author</h1>
-                        <h1 className="text-lg font-bold">Last Modified</h1>
+                    <div className="grid grid-cols-3 text-center border-b border-black p-6 text-lg font-bold">
+                        <h1>Title</h1>
+                        <h1>Author</h1>
+                        <h1>Last Modified</h1>
                     </div>
                     {notes?.map((note: any) => (
                         <Link
