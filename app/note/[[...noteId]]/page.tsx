@@ -5,7 +5,7 @@ import { redirect } from 'next/navigation';
 import prisma from "@/app/lib/db";
 import serverSession from '@/app/lib/session';
 
-const EditorComp = dynamic(() => import('../../components/NoteEditor'), { ssr: false });
+const NoteEditor = dynamic(() => import('../../components/NoteEditor'), { ssr: false });
 
 async function createNewNote(userId: string, userName: string) {
     const note = await prisma.note.create({
@@ -24,7 +24,7 @@ async function createNewNote(userId: string, userName: string) {
     return note;
 }
 
-export default async function NoteEditor({ params }: { params: { noteId: string } }) {
+export default async function Editor({ params }: { params: { noteId: string } }) {
     const session = await serverSession();
 
     if (!session) {
@@ -36,8 +36,8 @@ export default async function NoteEditor({ params }: { params: { noteId: string 
     }
 
     if (params.noteId === "new") {
-        await createNewNote(session?.user?.id as string, session?.user?.name as string);
-        redirect(`/notes/${note.id}`);
+        const newNote = await createNewNote(session?.user?.id as string, session?.user?.name as string);
+        redirect(`/notes/${newNote.id}`);
     }
 
     const note = await prisma.note.findUnique({
@@ -53,7 +53,7 @@ export default async function NoteEditor({ params }: { params: { noteId: string 
 
     return (
         <Suspense fallback={null}>
-            <EditorComp note={note}></EditorComp>
+            <NoteEditor note={note}></NoteEditor>
         </Suspense>
     )
 }

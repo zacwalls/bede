@@ -2,6 +2,61 @@
 @tailwind components;
 @tailwind utilities;
 
-div[role="textbox"]:focus, input:focus {
+div[role="textbox"]:focus,
+input:focus {
   outline: none;
+}
+
+.mxeditor h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: bold;
+}
+
+.mxeditor h1 {
+  font-size: 2em;
+}
+
+.mxeditor h2 {
+  font-size: 1.5em;
+}
+
+.mxeditor h3 {
+  font-size: 1.17em;
+}
+
+.mxeditor h5 {
+  font-size: .83em;
+}
+
+.mxeditor h6 {
+  font-size: .67em;
+}
+
+.mxeditor ol {
+  list-style-type: decimal;
+}
+
+.mxeditor ul {
+  list-style-type: disc;
+}
+
+.mxeditor blockquote {
+  box-sizing: border-box;
+  display: block;
+  margin-top: 1.6em;
+  margin-bottom: 1.6em;
+  border-left-width: 0.25rem;
+  padding-left: 1em;
+  border-left-color: #e5e7eb;
+  font-style: italic;
+  color: #111827;
+  font-weight: 500;
+}
+
+.mxeditor a {
+  color: hsl(211 100% 43.2%);
 }

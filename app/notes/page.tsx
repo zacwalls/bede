@@ -37,7 +37,7 @@ export default async function NotesPage() {
                     {notes?.map((note: any) => (
                         <Link
                             key={note.id}
-                            href={`/notes/${note.id}`}
+                            href={`/note/${note.id}`}
                             className="grid grid-cols-3 text-center border-b border-black p-6 hover:font-bold"
                         >
                             <span>{note.title}</span>

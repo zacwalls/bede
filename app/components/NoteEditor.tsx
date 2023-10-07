@@ -1,7 +1,16 @@
 "use client";
 
-import React, { useState, useEffect, Ref, useRef } from 'react'
-import { MDXEditor, MDXEditorMethods, headingsPlugin } from "@mdxeditor/editor"
+import { useState, useEffect, RefObject, useRef, FC, forwardRef } from 'react'
+import {
+    MDXEditor,
+    MDXEditorMethods,
+    MDXEditorProps,
+    headingsPlugin,
+    markdownShortcutPlugin,
+    listsPlugin,
+    linkPlugin,
+    quotePlugin
+} from "@mdxeditor/editor"
 import '@mdxeditor/editor/style.css'
 
 type Note = {
@@ -10,15 +19,18 @@ type Note = {
     content: string
 }
 
-// type EditorProps = {
-//     markdown: string
-//     editorRef?: React.MutableRefObject<MDXEditorMethods | null>
-//     onChange: (markdown: string) => void
-// }
+interface EditorProps {
+    markdown: string
+    onChange: (markdown: string) => void
+}
 
 // const Editor: FC<EditorProps> = ({ markdown, editorRef, onChange }: EditorProps) => {
 //     return <MDXEditor ref={editorRef} markdown={markdown} onChange={onChange} plugins={[headingsPlugin()]} />
 // }
+
+// const MDXEditor = forwardRef((props: MDXEditorProps, ref) => {
+//     return <Editor {...props} ref={ref as RefObject<MDXEditorMethods>} />
+// })
 
 // Used for selecting notes to link to
 function HoveringNotesMenu() {
@@ -55,22 +67,21 @@ function HoveringNotesMenu() {
 }
 
 export default function NoteEditor({ note }: { note: Note }) {
-    const [content, setContent] = useState(note.content);
     const [title, setTitle] = useState(note.title);
-    const editorRef = useRef<MDXEditorMethods>(null);
+    const editorRef = useRef<MDXEditorProps | null>(null);
 
-    useEffect(() => {
-        if (!editorRef.current) return;
+    async function updateNote(newTitle: string, newContent: string) {
+        if (!editorRef.current) return
 
         const timeout = setTimeout(async () => {
             await fetch(`/api/notes/${note.id}`, {
                 method: "PATCH",
-                body: JSON.stringify({ newTitle: title, newContent: content }),
+                body: JSON.stringify({ newTitle, newContent })
             });
         }, 1000);
 
         return () => clearTimeout(timeout);
-    }, [content, title])
+    }
 
     return (
         <div className="w-full px-48 py-12">
@@ -78,10 +89,26 @@ export default function NoteEditor({ note }: { note: Note }) {
                 className="text-4xl font-bold mr-4 w-fit pb-6"
                 type="text"
                 placeholder='Title...'
-                onChange={(e) => setTitle(e.target.value)}
+                onChange={(e) => {
+                    setTitle(e.target.value)
+                    updateNote(title, editorRef.current?.markdown as string)
+                }}
                 value={title}
             />
-            <MDXEditor ref={editorRef} markdown={content} onChange={(newContent) => setContent(newContent)} plugins={[headingsPlugin()]} />
+            <MDXEditor
+                autoFocus
+                className="mxeditor"
+                ref={editorRef as RefObject<MDXEditorMethods>}
+                markdown={note.content}
+                onChange={(newContent) => updateNote(title, newContent)}
+                plugins={[
+                    markdownShortcutPlugin(),
+                    headingsPlugin(),
+                    listsPlugin(),
+                    linkPlugin(),
+                    quotePlugin(),
+                ]}
+            />
         </div>
     )
 }
