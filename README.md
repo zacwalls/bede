@@ -1,8 +1,8 @@
 # MVP Features
 - [x] Authentication
 - [x] Markdown support/rich text
-- [ ] Internal linking - current
-- [ ] Note organization (folders)
+- [x] Internal linking - *technically complete - revisit later*
+- [ ] Note organization (folders) - current
 - [x] Syncing and backup
 - [ ] Dark mode
 
