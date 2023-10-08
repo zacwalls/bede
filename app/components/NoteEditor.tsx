@@ -1,15 +1,34 @@
 "use client";
 
-import { useState, useEffect, RefObject, useRef, FC, forwardRef } from 'react'
+import { useState, RefObject, useRef, } from 'react'
 import {
     MDXEditor,
     MDXEditorMethods,
     MDXEditorProps,
-    headingsPlugin,
+    diffSourcePlugin,
     markdownShortcutPlugin,
-    listsPlugin,
+    frontmatterPlugin,
+    headingsPlugin,
+    imagePlugin,
+    linkDialogPlugin,
     linkPlugin,
-    quotePlugin
+    listsPlugin,
+    quotePlugin,
+    tablePlugin,
+    thematicBreakPlugin,
+    toolbarPlugin,
+    codeBlockPlugin,
+    UndoRedo,
+    BoldItalicUnderlineToggles,
+    Separator,
+    CodeToggle,
+    ListsToggle,
+    BlockTypeSelect,
+    CreateLink,
+    InsertImage,
+    InsertTable,
+    InsertThematicBreak,
+    DiffSourceToggleWrapper,
 } from "@mdxeditor/editor"
 import '@mdxeditor/editor/style.css'
 
@@ -19,56 +38,10 @@ type Note = {
     content: string
 }
 
-interface EditorProps {
-    markdown: string
-    onChange: (markdown: string) => void
-}
-
-// const Editor: FC<EditorProps> = ({ markdown, editorRef, onChange }: EditorProps) => {
-//     return <MDXEditor ref={editorRef} markdown={markdown} onChange={onChange} plugins={[headingsPlugin()]} />
-// }
-
-// const MDXEditor = forwardRef((props: MDXEditorProps, ref) => {
-//     return <Editor {...props} ref={ref as RefObject<MDXEditorMethods>} />
-// })
-
-// Used for selecting notes to link to
-function HoveringNotesMenu() {
-    const [notes, setNotes] = useState([] as Note[]);
-
-    useEffect(() => {
-        fetch('/api/notes').then(res => res.json()).then(data => {
-            setNotes(data);
-        }).catch(err => console.error(err));
-    }, [])
-
-    return (
-        <div className="absolute z-10 w-1/4 h-1/2 bg-white border border-black">
-            <div className="flex flex-col">
-                {notes.map(note => (
-                    <div key={note.id} className="flex flex-row">
-                        <div
-                            contentEditable={false}
-                            className="text-sm font-bold text-gray-400"
-                            onClick={() => {
-                                const noteUrl = `/notes/${note.id}`;
-
-                                // setHref(noteUrl);
-                                // insertBacklink(editor, note.title, noteUrl);
-                            }}
-                        >
-                            {note.title}
-                        </div>
-                    </div>
-                ))}
-            </div>
-        </div>
-    )
-}
-
 export default function NoteEditor({ note }: { note: Note }) {
     const [title, setTitle] = useState(note.title);
     const editorRef = useRef<MDXEditorProps | null>(null);
+    const initialValue = note.content;
 
     async function updateNote(newTitle: string, newContent: string) {
         if (!editorRef.current) return
@@ -103,10 +76,38 @@ export default function NoteEditor({ note }: { note: Note }) {
                 onChange={(newContent) => updateNote(title, newContent)}
                 plugins={[
                     markdownShortcutPlugin(),
-                    headingsPlugin(),
+                    toolbarPlugin({
+                        toolbarContents: () => (
+                            <DiffSourceToggleWrapper>
+                                <UndoRedo />
+                                <Separator />
+                                <BoldItalicUnderlineToggles />
+                                <CodeToggle />
+                                <Separator />
+                                <ListsToggle />
+                                <Separator />
+                                <BlockTypeSelect />
+                                <Separator />
+                                <CreateLink />
+                                <InsertImage />
+                                <Separator />
+                                <InsertTable />
+                                <InsertThematicBreak />
+                            </DiffSourceToggleWrapper>
+                        )
+                    }),
+                    headingsPlugin({ allowedHeadingLevels: [1, 2, 3] }),
                     listsPlugin(),
                     linkPlugin(),
                     quotePlugin(),
+                    linkPlugin(),
+                    imagePlugin(),
+                    tablePlugin(),
+                    thematicBreakPlugin(),
+                    frontmatterPlugin(),
+                    codeBlockPlugin({ defaultCodeBlockLanguage: 'txt' }),
+                    diffSourcePlugin({ viewMode: 'rich-text', diffMarkdown: initialValue }),
+                    linkDialogPlugin()
                 ]}
             />
         </div>
