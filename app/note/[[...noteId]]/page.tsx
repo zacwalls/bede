@@ -26,6 +26,7 @@ async function createNewNote(userId: string, userName: string) {
 
 export default async function Editor({ params }: { params: { noteId: string } }) {
     const session = await serverSession();
+    let note;
 
     if (!session) {
         return (
@@ -35,17 +36,17 @@ export default async function Editor({ params }: { params: { noteId: string } })
         )
     }
 
-    if (params.noteId === "new") {
-        const newNote = await createNewNote(session?.user?.id as string, session?.user?.name as string);
-        redirect(`/notes/${newNote.id}`);
+    if (params.noteId[0] === "new") {
+        note = await createNewNote(session?.user?.id as string, session?.user?.name as string);
+        redirect(`/note/${note.id}`);
+    } else {
+        note = await prisma.note.findUnique({
+            where: {
+                id: parseInt(params.noteId),
+                userId: session?.user?.id
+            }
+        });
     }
-
-    const note = await prisma.note.findUnique({
-        where: {
-            id: parseInt(params.noteId),
-            userId: session?.user?.id
-        }
-    });
 
     if (!note) {
         throw new Error("Note not found");

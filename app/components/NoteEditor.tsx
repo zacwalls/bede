@@ -64,7 +64,7 @@ export default function NoteEditor({ note }: { note: Note }) {
                 placeholder='Title...'
                 onChange={(e) => {
                     setTitle(e.target.value)
-                    updateNote(title, editorRef.current?.markdown as string)
+                    updateNote(e.target.value, editorRef.current?.markdown as string)
                 }}
                 value={title}
             />

@@ -25,7 +25,7 @@ export default async function NotesPage() {
             <div className="flex flex-col items-center justify-center w-full">
                 <div className="flex justify-between w-full self-start flex-row-reverse p-4">
                     <div className="px-4 py-2 border border-black">
-                        <Link href="/notes/new">New Note</Link>
+                        <Link href="/note/new">New Note</Link>
                     </div>
                 </div>
                 <div className="flex flex-col w-full">
