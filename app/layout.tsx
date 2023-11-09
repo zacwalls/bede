@@ -21,7 +21,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <body suppressHydrationWarning={true}>
           <AuthContext session={session as Session}>
             <main className="flex min-h-screen flex-col items-center">
-              <Navbar session={session} />
+              <Navbar session={session as Session} />
               {children}
             </main>
           </AuthContext>
