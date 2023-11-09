@@ -5,6 +5,7 @@ import { PrismaAdapter } from "@auth/prisma-adapter";
 import prisma from "@/app/lib/db";
 
 const options: NextAuthOptions = {
+    secret: process.env.SECRET,
     adapter: PrismaAdapter(prisma) as any,
     providers: [
       GithubProvider({
