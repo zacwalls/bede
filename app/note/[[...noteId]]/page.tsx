@@ -7,13 +7,27 @@ import serverSession from '@/app/lib/session';
 
 const NoteEditor = dynamic(() => import('../../components/NoteEditor'), { ssr: false });
 
-async function createNewNote(userId: string, userName: string) {
+type User = ({
+    id: string;
+} & {
+    name?: string | null | undefined;
+    email?: string | null | undefined;
+    image?: string | null | undefined;
+}) | {
+    id: string;
+    name: string;
+    email: string;
+    emailVerified: boolean;
+    image: string;
+}
+
+async function createNewNote(user: User) {
     const note = await prisma.note.create({
         data: {
             title: "Untitled",
             content: "",
-            userId: userId,
-            authorName: userName
+            userId: user.id,
+            authorName: user.name ?? ""
         }
     });
 
@@ -22,6 +36,21 @@ async function createNewNote(userId: string, userName: string) {
     }
 
     return note;
+}
+
+async function createNewFolder(user: User) {
+    const folder = await prisma.noteFolder.create({
+        data: {
+            name: "Untitled Folder",
+            userId: user.id,
+        }
+    });
+
+    if (!folder) {
+        throw new Error("Failed to create folder");
+    }
+
+    return folder;
 }
 
 export default async function Editor({ params }: { params: { noteId: string } }) {
@@ -37,7 +66,7 @@ export default async function Editor({ params }: { params: { noteId: string } })
     }
 
     if (params.noteId[0] === "new") {
-        note = await createNewNote(session?.user?.id as string, session?.user?.name as string);
+        note = await createNewNote(session?.user);
         redirect(`/note/${note.id}`);
     } else {
         note = await prisma.note.findUnique({

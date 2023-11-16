@@ -17,7 +17,7 @@
     "@types/react": "18.2.20",
     "@types/react-dom": "18.2.7",
     "autoprefixer": "10.4.14",
-    "next": "13.4.13",
+    "next": "14.0.2",
     "next-auth": "^4.23.0",
     "postcss": "8.4.27",
     "prismjs": "^1.29.0",

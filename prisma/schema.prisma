@@ -69,8 +69,8 @@ model Note {
   authorName  String   @default("")
   user        User     @relation(fields: [userId], references: [id])
   userId      String
-  folder      NoteFolder @relation(fields: [folderId], references: [id])
-  folderId    Int
+  folder      NoteFolder? @relation(fields: [folderId], references: [id])
+  folderId    Int?
 }
 
 model NoteFolder {

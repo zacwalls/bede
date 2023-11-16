@@ -16,7 +16,7 @@ export default async function NotesPage() {
 
     const notes = await prisma.note.findMany({
         where: {
-            userId: session?.user?.id as string
+            userId: session?.user?.id
         }
     }) || [];
 
