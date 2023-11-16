@@ -38,21 +38,6 @@ async function createNewNote(user: User) {
     return note;
 }
 
-async function createNewFolder(user: User) {
-    const folder = await prisma.noteFolder.create({
-        data: {
-            name: "Untitled Folder",
-            userId: user.id,
-        }
-    });
-
-    if (!folder) {
-        throw new Error("Failed to create folder");
-    }
-
-    return folder;
-}
-
 export default async function Editor({ params }: { params: { noteId: string } }) {
     const session = await serverSession();
     let note;
